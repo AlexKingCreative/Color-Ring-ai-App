@@ -1,0 +1,37 @@
+steps:
+  # Build the container image with build-time environment variables
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'build'
+      - '--build-arg'
+      - 'VITE_SUPABASE_URL=https://laoeipvtphcievqgvsc.supabase.co'
+      - '--build-arg'
+      - 'VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxhb2VpcHZ0cGhjaWV2cWd2c2MiLCJyb2xlIjoiYW5vbiIsImlhdCI6MTY5ODc5Nzg0NCwiZXhwIjoyMDE0MzczODQ0fQ.eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxhb2VpcHZ0cGhjaWV2cWd2c2MiLCJyb2xlIjoiYW5vbiIsImlhdCI6MTY5ODc5Nzg0NCwiZXhwIjoyMDE0MzczODQ0fQ.eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxhb2VpcHZ0cGhjaWV2cWd2c2MiLCJyb2xlIjoiYW5vbiIsImlhdCI6MTY5ODc5Nzg0NCwiZXhwIjoyMDE0MzczODQ0fQ'
+      - '--tag'
+      - '$_AR_HOSTNAME/$_AR_PROJECT_ID/$_AR_REPOSITORY/$REPO_NAME:$COMMIT_SHA'
+      - '.'
+  
+  # Push the image to Artifact Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'push'
+      - '$_AR_HOSTNAME/$_AR_PROJECT_ID/$_AR_REPOSITORY/$REPO_NAME:$COMMIT_SHA'
+  
+  # Deploy to Cloud Run
+  - name: 'gcr.io/cloud-builders/gcloud'
+    args:
+      - 'run'
+      - 'deploy'
+      - '$_SERVICE_NAME'
+      - '--image'
+      - '$_AR_HOSTNAME/$_AR_PROJECT_ID/$_AR_REPOSITORY/$REPO_NAME:$COMMIT_SHA'
+      - '--region'
+      - '$_DEPLOY_REGION'
+      - '--platform'
+      - '$_PLATFORM'
+
+images:
+  - '$_AR_HOSTNAME/$_AR_PROJECT_ID/$_AR_REPOSITORY/$REPO_NAME:$COMMIT_SHA'
+
+options:
+  logging: CLOUD_LOGGING_ONLY
