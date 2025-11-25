@@ -23,7 +23,7 @@ ENV VITE_STRIPE_PRICE_ID=$VITE_STRIPE_PRICE_ID
 COPY package*.json ./
 
 # Install dependencies
-RUN npm install
+RUN npm install --legacy-peer-deps
 # Copy source code
 COPY . .
 
